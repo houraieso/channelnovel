@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ちゃんねる風小説執筆支援ツール - 出力</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <h1>ちゃんねる風小説執筆支援ツール</h1>
+
+  <div class="tabs">
+    <div class="tab" id="input-tab">レス入力</div>
+    <div class="tab active" id="output-tab">出力</div>
+    <div class="tab" id="settings-tab">設定</div>
+  </div>
+
+  <h2 class="output-title">出力結果</h2>
+
+  <div class="copy-button-container">
+    <button class="copy-button" id="copy-all-button">全文コピー</button>
+  </div>
+
+  <div class="output-container" id="output-text">
+    <!-- JSで生成 -->
+  </div>
+
+  <div class="notification" id="copy-notification">コピーしました</div>
+
+  <script src="main.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    generateOutput();
+
+    document.getElementById("copy-all-button").addEventListener("click", () => {
+      const text = document.getElementById("output-text").innerText;
+      navigator.clipboard.writeText(text).then(() => showNotification());
+    });
+  });
+
+  function generateOutput() {
+    const data = getResData();
+    const settings = getSettings();
+    const container = document.getElementById("output-text");
+
+    if (!data || data.length === 0) {
+      container.textContent = "レスが入力されていません。";
+      return;
+    }
+
+    let output = "";
+    // 設定から行間値を取得（設定がない場合はデフォルト値の0を使用）
+    const lineSpacing = settings && settings.lineSpacing !== undefined ? settings.lineSpacing : 0;
+    // 改行文字列を作成（設定された行間値に応じて改行の数を決定）
+    const spacing = "\n".repeat(lineSpacing);
+
+    data.forEach(res => {
+      const nameColor = res.colorCode && res.colorCode !== "default"
+        ? `\x1b[38;2;${hexToRgb(res.colorCode).join(";")}m`
+        : "";
+      const reset = nameColor ? "\x1b[0m" : "";
+      output += `${res.number}: ${res.name}\n${res.content}\n${spacing}`;
+    });
+
+    container.innerText = output.trim();
+  }
+
+  function hexToRgb(hex) {
+    // 色コードがHEX形式（#RRGGBB）の場合
+    if (hex.startsWith('#')) {
+      const bigint = parseInt(hex.replace("#", ""), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return [r, g, b];
+    }
+    // 色コードがrgb(r, g, b)形式の場合
+    else if (hex.startsWith('rgb')) {
+      const rgbValues = hex.match(/\d+/g);
+      if (rgbValues && rgbValues.length >= 3) {
+        return [parseInt(rgbValues[0]), parseInt(rgbValues[1]), parseInt(rgbValues[2])];
+      }
+    }
+    // どちらでもない場合はデフォルト値を返す
+    return [0, 0, 0];
+  }
+  </script>
+</body>
+</html>

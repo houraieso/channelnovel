@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ちゃんねる風小説執筆支援ツール - 入力ページ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    /* 特有の追加調整 */
+    .range-values label {
+      text-align: center;
+    }
+    .range-values input {
+      width: 60px;
+    }
+    .res-item {
+      margin-bottom: 20px;
+    }
+    .res-name {
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ちゃんねる風小説執筆支援ツール</h1>
+
+  <!-- タブ -->
+  <div class="tabs">
+    <div class="tab active" id="input-tab">レス入力</div>
+    <div class="tab" id="output-tab">出力</div>
+    <div class="tab" id="settings-tab">設定</div>
+  </div>
+
+  <!-- スライダー＋数値入力 -->
+  <div class="res-range-container">
+    <h3>レス範囲設定</h3>
+    <div class="slider-container">
+      <div class="slider-track"></div>
+      <div class="slider-range" id="slider-range"></div>
+      <div class="slider-handle" id="start-handle"></div>
+      <div class="slider-handle" id="end-handle"></div>
+    </div>
+    <!-- range-values部分の更新 -->
+    <div class="range-values">
+      <label>
+        開始
+        <div class="custom-number-input">
+          <input type="number" id="start-value" value="1" min="1" max="1000" />
+          <div class="number-arrows">
+            <div class="arrow-up" onclick="document.getElementById('start-value').stepUp()"></div>
+            <div class="arrow-down" onclick="document.getElementById('start-value').stepDown()"></div>
+          </div>
+        </div>
+      </label>
+      <label>
+        終了
+        <div class="custom-number-input">
+          <input type="number" id="end-value" value="100" min="1" max="1000" />
+          <div class="number-arrows">
+            <div class="arrow-up" onclick="document.getElementById('end-value').stepUp()"></div>
+            <div class="arrow-down" onclick="document.getElementById('end-value').stepDown()"></div>
+          </div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- ジャンル -->
+  <div class="genre-container">
+    <h3>ジャンル選択</h3>
+    <select class="select-box" id="genre-select"></select>
+  </div>
+
+  <!-- コテハン方式 -->
+  <div class="kotehan-toggle">
+    <h3>コテハン選択方法</h3>
+    <div class="tabs" style="margin-bottom: 10px;">
+      <button class="toggle-button active" id="button-toggle">ボタン</button>
+      <button class="toggle-button" id="dropdown-toggle">プルダウン</button>
+    </div>
+  </div>
+
+  <!-- レス生成 -->
+  <div class="res-container" id="res-container"></div>
+
+  <div class="notification" id="copy-notification">コピーしました</div>
+
+
+  <script src="main.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const startHandle = document.getElementById('start-handle');
+    const endHandle = document.getElementById('end-handle');
+    const sliderTrack = document.querySelector('.slider-track');
+    const sliderRange = document.getElementById('slider-range');
+    const startValue = document.getElementById('start-value');
+    const endValue = document.getElementById('end-value');
+    const resContainer = document.getElementById('res-container');
+
+    let settings = getSettings();
+    let allGenres = settings.genres || [];
+    let allKotehans = settings.kotehans || [];
+
+    // 入力ページの状態を取得
+    const inputState = getInputState();
+
+    // 以前の値を復元
+    let currentGenre = inputState.currentGenre || allGenres[0] || "デフォルト";
+    let useButtonMode = inputState.useButtonMode !== undefined ? inputState.useButtonMode : true;
+
+    // 範囲の値を復元
+    startValue.value = inputState.startValue || 1;
+    endValue.value = inputState.endValue || 100;
+
+    const genreSelect = document.getElementById("genre-select");
+    const buttonToggle = document.getElementById("button-toggle");
+    const dropdownToggle = document.getElementById("dropdown-toggle");
+
+    // UI初期化
+    function initUI() {
+      // ジャンル選択メニューをセットアップ
+      genreSelect.innerHTML = "";
+      allGenres.forEach(g => {
+        const opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        genreSelect.appendChild(opt);
+      });
+
+      // 保存されたジャンルを選択
+      genreSelect.value = currentGenre;
+
+      genreSelect.onchange = () => {
+        currentGenre = genreSelect.value;
+        // ジャンル変更を保存
+        saveInputState({ currentGenre });
+        generateResInputs();
+      };
+
+      // ボタン/ドロップダウン切り替えのUIを初期化
+      if (useButtonMode) {
+        buttonToggle.classList.add("active");
+        dropdownToggle.classList.remove("active");
+      } else {
+        buttonToggle.classList.remove("active");
+        dropdownToggle.classList.add("active");
+      }
+
+      buttonToggle.onclick = () => {
+        useButtonMode = true;
+        buttonToggle.classList.add("active");
+        dropdownToggle.classList.remove("active");
+        saveInputState({ useButtonMode });
+        generateResInputs();
+      };
+
+      dropdownToggle.onclick = () => {
+        useButtonMode = false;
+        dropdownToggle.classList.add("active");
+        buttonToggle.classList.remove("active");
+        saveInputState({ useButtonMode });
+        generateResInputs();
+      };
+    }
+
+    // スライダー設定
+    function setupSlider() {
+      let isDragging = false;
+      let current = null;
+
+      function positionToValue(percent) {
+        return Math.round(1 + percent * 999);
+      }
+
+      function updatePosition(handle, value) {
+        const percent = (value - 1) / 999;
+        handle.style.left = `${percent * 100}%`;
+      }
+
+      function updateSlider() {
+        const s = parseInt(startValue.value);
+        const e = parseInt(endValue.value);
+        updatePosition(startHandle, s);
+        updatePosition(endHandle, e);
+        const startP = (s - 1) / 999 * 100;
+        const endP = (e - 1) / 999 * 100;
+        sliderRange.style.left = `${startP}%`;
+        sliderRange.style.width = `${endP - startP}%`;
+
+        // 値の変更を保存
+        saveInputState({
+          startValue: s,
+          endValue: e
+        });
+
+        generateResInputs();
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+        const rect = sliderTrack.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        const value = Math.max(1, Math.min(1000, positionToValue(percent)));
+
+        if (current === "start" && value < parseInt(endValue.value)) {
+          startValue.value = value;
+        } else if (current === "end" && value > parseInt(startValue.value)) {
+          endValue.value = value;
+        }
+        updateSlider();
+      }
+
+      startHandle.onmousedown = () => {
+        isDragging = true;
+        current = "start";
+        document.onmousemove = drag;
+        document.onmouseup = () => {
+          isDragging = false;
+          document.onmousemove = null;
+        };
+      };
+
+      endHandle.onmousedown = () => {
+        isDragging = true;
+        current = "end";
+        document.onmousemove = drag;
+        document.onmouseup = () => {
+          isDragging = false;
+          document.onmousemove = null;
+        };
+      };
+
+      // inputイベントとchangeイベントの両方をリッスンする
+      startValue.addEventListener('input', updateSlider);
+      startValue.addEventListener('change', updateSlider);
+      endValue.addEventListener('input', updateSlider);
+      endValue.addEventListener('change', updateSlider);
+
+      // onclick属性を削除（JavaScriptのイベントリスナーに置き換え）
+      const arrowButtons = document.querySelectorAll('.arrow-up, .arrow-down');
+      arrowButtons.forEach(button => {
+        button.removeAttribute('onclick');
+      });
+
+      updateSlider();
+    }
+
+    function generateResInputs() {
+      const s = parseInt(startValue.value);
+      const e = parseInt(endValue.value);
+      const defaultName = settings.defaultName || "名無し";
+      const genreKotehans = allKotehans.filter(k => k.genre === currentGenre);
+
+      // 保存されたレスデータを取得
+      const savedData = getResData();
+
+      // レス選択状態を初期化または取得
+      let resSelections = inputState.resSelections || [];
+
+      resContainer.innerHTML = "";
+
+      for (let i = s; i <= e; i++) {
+        const itemIndex = i - s; // 配列内でのインデックス
+        const resNumber = i;
+
+        // このレス番号に対する保存データを検索
+        const savedRes = savedData.find(res => res.number === resNumber);
+        const savedSelection = resSelections[itemIndex] || {};
+
+        const item = document.createElement("div");
+        item.className = "res-item";
+        item.dataset.resNumber = resNumber;
+
+        // 上部ヘッダー（番号＋名前）
+        const header = document.createElement("div");
+        header.className = "res-header"; // ← ヘッダ用クラス追加（必要ならCSS調整）
+
+        const num = document.createElement("strong");
+        num.textContent = `${i}: `;
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "res-name";
+        nameSpan.textContent = savedRes ? savedRes.name : defaultName;
+
+        header.appendChild(num);
+        header.appendChild(nameSpan);
+        item.appendChild(header);
+
+        // コテハン選択（ボタン or プルダウン）
+        const avatarBox = document.createElement("div");
+        avatarBox.className = "avatar-container";
+
+        const defaultIcon = document.createElement("div");
+        defaultIcon.className = "avatar";
+        defaultIcon.style.backgroundColor = "#ccc";
+        defaultIcon.title = defaultName;
+        defaultIcon.onclick = () => {
+          nameSpan.textContent = defaultName;
+          avatarBox.querySelectorAll(".avatar").forEach(a => a.classList.remove("active"));
+          defaultIcon.classList.add("active");
+          if (dropdown) dropdown.value = "";
+
+          resSelections[itemIndex] = { kotehanName: "" };
+          saveInputState({ resSelections });
+          saveResData();
+        };
+        avatarBox.appendChild(defaultIcon);
+
+        genreKotehans.forEach(k => {
+          const avatar = document.createElement("div");
+          avatar.className = "avatar";
+          avatar.style.backgroundColor = k.color;
+          avatar.title = k.name;
+          avatar.onclick = () => {
+            nameSpan.textContent = k.name;
+            avatarBox.querySelectorAll(".avatar").forEach(a => a.classList.remove("active"));
+            avatar.classList.add("active");
+            dropdown.value = k.name;
+
+            resSelections[itemIndex] = { kotehanName: k.name };
+            saveInputState({ resSelections });
+            saveResData();
+          };
+          avatarBox.appendChild(avatar);
+        });
+
+        const dropdown = document.createElement("select");
+        dropdown.className = "kotehan-dropdown";
+        const emptyOpt = document.createElement("option");
+        emptyOpt.value = "";
+        emptyOpt.textContent = defaultName;
+        dropdown.appendChild(emptyOpt);
+
+        genreKotehans.forEach(k => {
+          const opt = document.createElement("option");
+          opt.value = k.name;
+          opt.textContent = k.name;
+          dropdown.appendChild(opt);
+        });
+
+        dropdown.onchange = () => {
+          const selected = dropdown.value;
+          nameSpan.textContent = selected || defaultName;
+          avatarBox.querySelectorAll(".avatar").forEach(a => {
+            a.classList.toggle("active", a.title === selected || (selected === "" && a.title === defaultName));
+          });
+
+          resSelections[itemIndex] = { kotehanName: selected };
+          saveInputState({ resSelections });
+          saveResData();
+        };
+
+        if (useButtonMode) {
+          dropdown.style.display = "none";
+          item.appendChild(avatarBox);
+        } else {
+          avatarBox.style.display = "none";
+          item.appendChild(dropdown);
+        }
+
+        // テキスト入力欄
+        const textarea = document.createElement("textarea");
+        textarea.className = "res-content";
+        textarea.placeholder = "レス内容を入力...";
+        if (savedRes) {
+          textarea.value = savedRes.content || "";
+        }
+        textarea.oninput = () => {
+          saveResData();
+        };
+
+        item.appendChild(textarea);
+        resContainer.appendChild(item);
+
+
+        // 保存されたコテハン選択を復元
+        let kotehanToSelect = "";
+
+        // まず保存データから探す
+        if (savedRes && savedRes.name !== defaultName) {
+          kotehanToSelect = savedRes.name;
+        }
+        // 次に選択状態から探す
+        else if (savedSelection.kotehanName) {
+          kotehanToSelect = savedSelection.kotehanName;
+        }
+
+        // コテハン選択を適用
+        if (kotehanToSelect) {
+          dropdown.value = kotehanToSelect;
+
+          // ボタンモードの場合、対応するアバターもアクティブに
+          if (useButtonMode) {
+            avatarBox.querySelectorAll(".avatar").forEach(a => {
+              if (a.title === kotehanToSelect) {
+                a.classList.add("active");
+              }
+            });
+          }
+
+          nameSpan.textContent = kotehanToSelect;
+        } else {
+          // デフォルトアイコンをアクティブに
+          if (useButtonMode) {
+            defaultIcon.classList.add("active");
+          }
+        }
+      }
+
+      saveResData();
+
+      // カスタムドロップダウンを適用
+      if (typeof replaceSelectsWithCustomDropdowns === 'function') {
+        setTimeout(replaceKotehanDropdowns, 100);
+      }
+    }
+
+    function replaceKotehanDropdowns() {
+      document.querySelectorAll('select.kotehan-dropdown').forEach(select => {
+        // 既にカスタム化されていない場合のみ処理
+        if (!select.style.display || select.style.display !== 'none') {
+          createCustomDropdown(select);
+        }
+      });
+    }
+
+    function saveResData() {
+      const s = parseInt(startValue.value);
+      const data = [];
+      document.querySelectorAll(".res-item").forEach((item, i) => {
+        const number = parseInt(item.dataset.resNumber);
+        const name = item.querySelector(".res-name").textContent;
+        const content = item.querySelector("textarea").value;
+        const avatar = item.querySelector(".avatar.active");
+        const colorCode = avatar ? avatar.style.backgroundColor : "#000";
+        data.push({ number, name, content, colorCode });
+      });
+      localStorage.setItem("channeruResData", JSON.stringify(data));
+    }
+
+    initUI();
+    setupSlider();
+
+    // 既存のイベントリスナーを使用
+    window.generateResInputs = generateResInputs;
+  });
+  </script>
+</body>
+</html>

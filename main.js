@@ -72,7 +72,7 @@ function getInputState() {
 // ===== 🌐 タブ切り替え（ナビゲーション） =====
 document.addEventListener('DOMContentLoaded', () => {
   const tabs = {
-    'input-tab': 'index.html',
+    'input-tab': '/channelnovel/',
     'output-tab': 'output_page.html',
     'settings-tab': 'kotehane_management.html'
   };

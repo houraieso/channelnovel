@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ちゃんねる風小説執筆支援ツール - 設定ページ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <h1>ちゃんねる風小説執筆支援ツール</h1>
+
+  <!-- タブナビゲーション -->
+  <div class="tabs">
+    <div class="tab" id="input-tab">レス入力</div>
+    <div class="tab" id="output-tab">出力</div>
+    <div class="tab active" id="settings-tab">設定</div>
+  </div>
+
+  <!-- 全体設定 -->
+  <div class="section">
+    <h2>全体設定</h2>
+    <div class="input-group">
+      <label for="default-name">デフォルト名前設定</label>
+      <input type="text" id="default-name" placeholder="例：名無しの審神者" />
+    </div>
+    <!-- input-group部分の更新 -->
+    <div class="input-group">
+          <label for="line-spacing">行間設定（0〜5）</label>
+          <div class="custom-number-input">
+            <input type="number" id="line-spacing" min="0" max="5" />
+            <div class="number-arrows">
+              <div class="arrow-up" id="line-spacing-up"></div>
+              <div class="arrow-down" id="line-spacing-down"></div>
+            </div>
+          </div>
+    </div>
+  </div>
+
+  <!-- ジャンル管理 -->
+  <div class="section">
+    <h2>ジャンル管理</h2>
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <input type="text" id="new-genre" placeholder="新しいジャンル名..." />
+      <button id="add-genre-btn">追加</button>
+    </div>
+    <div id="genre-list" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+  </div>
+
+  <!-- コテハン追加 -->
+  <!-- kotehane_management.htmlのコテハン追加フォーム部分の修正 -->
+  <div class="section">
+    <h2>コテハン追加</h2>
+    <div class="kotehan-form">
+      <div class="form-row">
+        <label for="kotehan-name">名前</label>
+        <input type="text" id="kotehan-name" placeholder="コテハン" />
+      </div>
+      <div class="form-row">
+        <label for="kotehan-color">色</label>
+        <input type="color" id="kotehan-color" value="#f5424e" class="color-picker" />
+      </div>
+      <div class="form-row">
+        <label for="kotehan-genre">ジャンル</label>
+        <select class="select-box" id="kotehan-genre"></select>
+      </div>
+      <div class="form-row">
+        <button id="add-kotehan-btn">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- コテハン一覧 -->
+  <div class="section">
+    <h2>登録済みコテハン一覧</h2>
+    <div id="kotehan-list" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+  </div>
+
+  <!-- 通知表示用の要素を追加 -->
+  <div class="notification" id="copy-notification">コピーしました</div>
+
+  <script src="main.js"></script>
+  <script>
+    const defaultData = {
+      genres: ["刀剣乱舞", "ツイステ"],
+      kotehans: [
+        { name: "武蔵国審神者", color: "#FFD700", genre: "刀剣乱舞" },
+        { name: "美濃国審神者", color: "#7F9E7F", genre: "刀剣乱舞" },
+        { name: "名無しの厳格", color: "#FF0000", genre: "ツイステ" },
+        { name: "名無しの慈悲", color: "#DDA0DD", genre: "ツイステ" },
+        { name: "名無しの勤勉", color: "#1E90FF", genre: "ツイステ" }
+      ],
+      defaultName: "名無しの審神者",
+      lineSpacing: 2
+    };
+
+    function loadSettings() {
+      let settings = getSettings();
+      let updated = false;
+
+      // 初回初期化
+      if (!settings.genres || settings.genres.length === 0) {
+        settings.genres = defaultData.genres;
+        updated = true;
+      }
+      if (!settings.kotehans || settings.kotehans.length === 0) {
+        settings.kotehans = defaultData.kotehans;
+        updated = true;
+      }
+      if (!settings.defaultName) {
+        settings.defaultName = defaultData.defaultName;
+        updated = true;
+      }
+      if (settings.lineSpacing === undefined) {
+        settings.lineSpacing = defaultData.lineSpacing;
+        updated = true;
+      }
+
+      if (updated) saveSettings(settings);
+
+      document.getElementById("default-name").value = settings.defaultName;
+      document.getElementById("line-spacing").value = settings.lineSpacing;
+
+      // ジャンル表示
+      const genreList = document.getElementById("genre-list");
+      genreList.innerHTML = "";
+      settings.genres.forEach(name => {
+        const item = document.createElement("div");
+        item.className = "genre-item";
+        item.textContent = name;
+        const del = document.createElement("button");
+        del.className = "delete-btn";
+        del.textContent = "×";
+        del.onclick = () => {
+          if (confirm(`ジャンル「${name}」を削除しますか？`)) {
+            settings.genres = settings.genres.filter(g => g !== name);
+            settings.kotehans = settings.kotehans.filter(k => k.genre !== name);
+            saveSettings(settings);
+            loadSettings();
+          }
+        };
+        item.appendChild(del);
+        genreList.appendChild(item);
+      });
+
+      // ジャンル選択肢
+      const genreSelect = document.getElementById("kotehan-genre");
+      genreSelect.innerHTML = "";
+      settings.genres.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        genreSelect.appendChild(opt);
+      });
+
+      // コテハン表示
+      const list = document.getElementById("kotehan-list");
+      list.innerHTML = "";
+      settings.kotehans.forEach(k => {
+        const item = document.createElement("div");
+        item.className = "kotehan-item";
+        item.innerHTML = `<span class="kotehan-color" style="background-color: ${k.color};"></span> ${k.name} <span class="kotehan-genre">ジャンル：${k.genre}</span>`;
+        const del = document.createElement("button");
+        del.className = "delete-btn";
+        del.textContent = "×";
+        del.onclick = () => {
+          settings.kotehans = settings.kotehans.filter(kk => !(kk.name === k.name && kk.genre === k.genre));
+          saveSettings(settings);
+          loadSettings();
+        };
+        item.appendChild(del);
+        list.appendChild(item);
+      });
+
+      // カスタムドロップダウンを適用
+      setTimeout(replaceSelectsWithCustomDropdowns, 100);
+    }
+
+    document.getElementById("add-genre-btn").addEventListener("click", () => {
+      const input = document.getElementById("new-genre");
+      const name = input.value.trim();
+      if (!name) return;
+      const settings = getSettings();
+      if (!settings.genres.includes(name)) {
+        settings.genres.push(name);
+        saveSettings(settings);
+        input.value = "";
+        loadSettings();
+      }
+    });
+
+    document.getElementById("add-kotehan-btn").addEventListener("click", () => {
+      const name = document.getElementById("kotehan-name").value.trim();
+      const color = document.getElementById("kotehan-color").value;
+      // カスタムドロップダウンから値を取得するように修正
+      let genre = document.getElementById("kotehan-genre").value;
+
+      // カスタムドロップダウンが適用されている場合、元のセレクト要素から値を取得
+      if (document.querySelector('.custom-dropdown[data-for="kotehan-genre"]')) {
+        genre = document.getElementById("kotehan-genre").value;
+      }
+
+      if (!name) return;
+      const settings = getSettings();
+      settings.kotehans.push({ name, color, genre });
+      saveSettings(settings);
+      document.getElementById("kotehan-name").value = "";
+      loadSettings();
+    });
+
+    document.getElementById("default-name").addEventListener("input", () => {
+      const settings = getSettings();
+      settings.defaultName = document.getElementById("default-name").value;
+      saveSettings(settings);
+    });
+
+    document.getElementById("line-spacing").addEventListener("change", () => {
+      const settings = getSettings();
+      settings.lineSpacing = parseInt(document.getElementById("line-spacing").value, 10);
+      saveSettings(settings);
+    });
+
+    document.addEventListener("DOMContentLoaded", loadSettings);
+  </script>
+</body>
+</html>

@@ -16,13 +16,14 @@ body {
 }
 
 h1 {
-  font-family: "Yusei Magic", sans-serif;
+  font-family: "Sawarabi Mincho";
   text-align: center;
   margin-bottom: 30px;
 }
 
 h2, h3, h4 {
-  font-family: "Yusei Magic", sans-serif;
+  font-family: "Sawarabi Mincho";
+  margin-top: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #566270;
   padding-bottom: 5px;
@@ -81,7 +82,7 @@ button:hover {
   font-size: 14px;
   background-color: #e0e3da;
   color: #566270;
-  width: 20%;
+  width: 24%;
 }
 
 .toggle-button.active {
@@ -640,15 +641,7 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
   align-items: center;
 }
 
-/* コテハンの色アイコンスタイル（選択部分とオプション部分共通） */
-.kotehan-option-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  margin-right: 8px;
-  display: inline-block;
-  flex-shrink: 0;
-}
+
 
 /* 2つ目以降のレスにもホバー色を確実に適用 */
 .res-item .custom-dropdown-option:hover,

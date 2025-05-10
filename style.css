@@ -1,0 +1,702 @@
+/* 共通CSS（ここには前述の style.css の内容を貼り付け） */
+/* === 全体共通スタイル === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+}
+
+body {
+  background-color: #fffff3;
+  color: #566270;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h2, h3, h4 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #566270;
+  padding-bottom: 5px;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 15px;
+  text-align: center;
+  background-color: #e0e3da;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 10px 10px 0 0;
+  margin-right: 5px;
+  font-size: 16px;
+}
+
+.tab.active {
+  background-color: #566270;
+  color: #fffff3;
+}
+
+/* === ボタン類 === */
+button {
+  background-color: #8FA8A0;
+  color: #fffff3;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 14px;
+}
+
+.toggle-button:hover{
+  background-color: #bcbfb6;
+}
+
+button:hover {
+  background-color: #768a84;
+}
+
+.copy-button{
+    margin: 0 0 10px 0;
+}
+
+.toggle-button {
+  padding: 10px;
+  border-radius: 10px;
+  margin-right: 5px;
+  font-size: 14px;
+  background-color: #e0e3da;
+  color: #566270;
+  width: 20%;
+}
+
+.toggle-button.active {
+  background-color: #566270;
+  color: #fffff3;
+}
+
+/* === 入力欄／選択欄 === */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: #e0e3da;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 70px 12px 12px;
+  color: #566270;
+}
+
+.res-content{
+  width: 85%;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  text-align: center;
+  padding: 10px;
+}
+
+
+/* 数値入力欄の基本スタイル - 画像に合わせて調整 */
+input[type="number"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 28px; /* 入力欄を小さくし、数字のみ表示するサイズに */
+  height: 28px;
+  padding: 0 4px;
+  border: none;
+  font-size: 16px;
+  text-align: center;
+  background-color: transparent;
+  color: #333;
+}
+
+/* デフォルトの上下矢印を非表示にする */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* カスタム数値入力コンテナ */
+.custom-number-input {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background-color: #e0e3da;
+  border-radius: 4px;
+  padding: 10px;
+  height: 38px;
+  overflow: hidden;
+}
+
+/* 矢印コンテナ */
+.number-arrows {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 28px;
+  width: 20px;
+}
+
+/* 上矢印のスタイル */
+.arrow-up {
+  width: 10px;
+  height: 10px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #666;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.arrow-up:hover {
+  border-bottom-color: #333;
+}
+
+.arrow-up:active {
+  border-bottom-color: #000;
+}
+
+/* 下矢印のスタイル */
+.arrow-down {
+  width: 10px;
+  height: 10px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #666;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.arrow-down:hover {
+  border-top-color: #333;
+}
+
+.arrow-down:active {
+  border-top-color: #000;
+}
+
+/* フォーカス時のスタイル */
+.custom-number-input:focus-within {
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+input[type="number"]:focus {
+  outline: none;
+}
+
+/* range-values特有のスタイル */
+.range-values {
+  display: flex;
+  gap: 15px;
+}
+
+.range-values label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+/* input-group特有のスタイル */
+.input-group {
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+/* range-values特有のスタイル */
+.range-values {
+  display: flex;
+  gap: 10px;
+}
+
+.range-values label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* input-group特有のスタイル */
+.input-group {
+  align-items: center;
+  gap: 10px;
+}
+
+/* 行間設定用の細い数値入力欄 */
+#line-spacing {
+  width: 50px;
+}
+
+/* 数値入力位置調整（スライダー端） */
+.range-values {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  width: 100%;
+}
+.range-values label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 80px;
+}
+
+
+/* === テキストエリア（本文） === */
+textarea {
+  background-color: #eceee6;
+  border: none;
+  resize: vertical;
+  min-height: 85px;
+  margin-top: 6px;
+}
+
+
+
+/* === レンジスライダー === */
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  margin: 20px 0;
+}
+.slider-track {
+  width: 100%;
+  height: 100%;
+  background-color: #e0e3da;
+  border-radius: 5px;
+  position: absolute;
+}
+.slider-range {
+  background-color: #566270;
+  height: 100%;
+  position: absolute;
+  border-radius: 5px;
+}
+.slider-handle {
+  width: 24px;
+  height: 24px;
+  background-color: #566270;
+  border-radius: 6px;
+  position: absolute;
+  top: -7px;
+  margin-left: -12px;
+  cursor: pointer;
+}
+
+/* === コテハン選択アイコン === */
+.avatar-container {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+.avatar.active {
+  border: 2px solid #566270;
+}
+
+/* === 通知 === */
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(86, 98, 112, 0.9);
+  color: #fffff3;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
+  z-index: 100;
+  animation: fadeInOut 2s ease-in-out;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* === 設定ページ === */
+.input-group {
+  margin-bottom: 10px;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.genre-item, .kotehan-item {
+  background-color: #ECEEE6;
+  border-radius: 10px;
+  padding: 3px 0 0 10px;
+  margin: 5px 5px 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 45%;
+}
+
+.genre-item .delete-btn,
+.kotehan-item .delete-btn {
+  color: #f5424e;
+  background: none;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.kotehan-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+/* カラーピッカーの基本スタイル */
+input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  margin-top: 2px;
+  border: none;
+  cursor: pointer;
+}
+
+/* カラーピッカーの円形スタイル */
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+/* Firefox用のスタイル */
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* フォーカス時の効果 */
+input[type="color"]:focus {
+  outline: none;
+  border-radius: 50%;
+}
+
+/* サイズバリエーション（オプション） */
+input[type="color"].small {
+  width: 32px;
+  height: 32px;
+}
+
+input[type="color"].large {
+  width: 64px;
+  height: 64px;
+}
+
+/* style.cssの更新部分 - コテハン追加フォームのレイアウト修正 */
+
+/* 他のCSSはそのままで、以下を追加または変更 */
+
+/* コテハン追加フォーム全体のレイアウト */
+.kotehan-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end; /* 下端を揃えるためのプロパティ */
+  margin-bottom: 10px;
+}
+
+/* フォーム内の各行（ラベル + 入力欄）のレイアウト */
+.kotehan-form .form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ラベルのスタイルを調整 */
+.kotehan-form .form-row label {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+/* ジャンル選択のカスタムドロップダウン調整 */
+.kotehan-form #kotehan-genre + .custom-dropdown {
+  margin-top: 0; /* 余分な上マージンを削除 */
+}
+
+
+
+/* ボタンの位置調整 - 23pxのマージンは削除 */
+.kotehan-form .form-row:last-child {
+  margin-top: 0; /* マージン削除 */
+  align-self: flex-end; /* 下端に合わせる */
+}
+
+/* 追加ボタンの高さを他と揃える */
+.kotehan-form #add-kotehan-btn {
+  height: 45px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* style.css に追加するスタイル */
+/* カスタムドロップダウンのスタイル */
+/* 省略... 既存のCSSはそのまま保持 */
+
+/* カスタムドロップダウンのスタイル */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 40%;
+}
+
+/* カスタムドロップダウンのセレクターの高さを他の入力要素と同じに */
+.kotehan-form .custom-dropdown-select {
+  height: 43px; /* 入力フィールドとほぼ同じ高さに */
+  width: 170px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-dropdown-select {
+  background-color: #e0e3da;
+  border: none;
+  border-radius: 5px;
+  padding: 14px;
+  color: #566270;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-dropdown-select:after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #566270;
+  margin-left: 10px;
+}
+
+.res-item .custom-dropdown-select{
+  padding: 10px 15px 10px 16px;
+}
+
+/* カスタムドロップダウンのスタイル - コテハン統一用 */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 30%;
+  font-size: 14px;
+  color: #566270;
+  cursor: pointer;
+}
+
+.custom-dropdown-options.show{
+  width: 100%;
+}
+
+.custom-dropdown-select {
+  background-color: #e0e3da;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px 10px 16px;
+  color: #566270;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-dropdown-select:after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #566270;
+  margin-left: 10px;
+}
+
+.custom-dropdown-options.show {
+  display: block;
+}
+
+.custom-dropdown-option,
+.kotehan-custom-dropdown-option {
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+/* ホバー時の色を統一（重要度を上げて強制適用） */
+.custom-dropdown-option:hover,
+.kotehan-custom-dropdown-option:hover,
+.res-item .custom-dropdown-option:hover,
+.res-item .kotehan-custom-dropdown-option:hover,
+.custom-dropdown-options .custom-dropdown-option:hover,
+.custom-dropdown-options .kotehan-custom-dropdown-option:hover,
+body .custom-dropdown-options .custom-dropdown-option:hover,
+body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
+  background-color: #c8ccc0 !important;
+}
+
+/* custom-dropdown-options の幅を修正 */
+.custom-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #e0e3da;
+  border-radius: 0 0 5px 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  display: none;
+  width: 100%; /* プルダウン自体と同じ幅にする */
+}
+
+.custom-dropdown-options.show {
+  display: block;
+  width: 100%; /* 表示時にも同じ幅を確保 */
+}
+
+/* コテハン管理画面のドロップダウンに特化した修正 */
+.kotehan-form .custom-dropdown-options {
+  width: 100%;
+  min-width: 170px; /* 最低限の幅を確保 */
+}
+
+/* コテハン追加フォームのドロップダウン用セレクター */
+.kotehan-form .custom-dropdown {
+  width: 170px; /* 固定幅に設定 */
+}
+/
+/* コテハンドロップダウンのスタイル統一 */
+.kotehan-dropdown,
+.res-item .custom-dropdown {
+  border: none;
+  border-radius: 5px;
+  color: #566270;
+  width: 30%;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* コテハンドロップダウンの選択部分のスタイル統一 */
+.res-item .custom-dropdown-select,
+.kotehan-dropdown + .custom-dropdown .custom-dropdown-select {
+  padding: 10px 15px 10px 16px;
+  background-color: #e0e3da;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+/* コテハンの色アイコンスタイル（選択部分とオプション部分共通） */
+.kotehan-option-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* 2つ目以降のレスにもホバー色を確実に適用 */
+.res-item .custom-dropdown-option:hover,
+.res-item .kotehan-custom-dropdown-option:hover {
+  background-color: #c8ccc0 !important;
+}
+
+/* オプションのパディングを統一 */
+.custom-dropdown-option,
+.kotehan-custom-dropdown-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+/* すべてのドロップダウンオプションに対して強制的にホバースタイルを適用 */
+.custom-dropdown-option:hover,
+.custom-dropdown-options .custom-dropdown-option:hover,
+.kotehan-custom-dropdown-option:hover,
+body .custom-dropdown-options .custom-dropdown-option:hover,
+body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
+  background-color: #c8ccc0 !important;
+}
+
+/* 2つ目以降のレスにもホバー色を確実に適用 */
+.res-item .custom-dropdown-option:hover,
+.res-item .kotehan-custom-dropdown-option:hover {
+  background-color: #c8ccc0 !important;
+}
+
+/* ドロップダウンの基本スタイルを統一 */
+.kotehan-dropdown,
+.res-item .custom-dropdown-select {
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  color: #566270;
+  padding: 10px 15px 10px 13px;
+  background-color: #e0e3da;
+}
+
+/* カスタムドロップダウンのセレクターの高さ統一 */
+.custom-dropdown-select {
+  height: 43px;
+  display: flex;
+  align-items: center;
+}
+
+/* カスタムドロップダウンオプションの余白とフォントを統一 */
+.custom-dropdown-option {
+  padding: 10px 12px;
+  font-size: 14px;
+}

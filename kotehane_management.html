@@ -162,7 +162,7 @@
       settings.kotehans.forEach(k => {
         const item = document.createElement("div");
         item.className = "kotehan-item";
-        item.innerHTML = `<span class="kotehan-color" style="background-color: ${k.color};"></span> ${k.name} <span class="kotehan-genre">ジャンル：${k.genre}</span>`;
+        item.innerHTML = `<span class="kotehan-color" style="background-color: ${k.color};"></span> ${k.name} <span class="kotehan-genre">：${k.genre}</span>`;
         const del = document.createElement("button");
         del.className = "delete-btn";
         del.textContent = "×";

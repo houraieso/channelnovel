@@ -284,7 +284,7 @@ function updateResData() {
 // ===== 🌐 タブ切り替え（ナビゲーション） =====
 document.addEventListener('DOMContentLoaded', () => {
   const tabs = {
-    'input-tab': 'channelStyleNovel.html',
+    'input-tab': 'index.html',
     'output-tab': 'output_page.html',
     'settings-tab': 'kotehane_management.html'
   };

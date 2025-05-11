@@ -1,10 +1,11 @@
-/* 共通CSS（ここには前述の style.css の内容を貼り付け） */
+/* 共通CSS（ここには既存のstyle.cssの内容をそのまま維持） */
 /* === 全体共通スタイル === */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  font-family: "M PLUS 1p", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  font-weight: 300;
 }
 
 body {
@@ -16,13 +17,13 @@ body {
 }
 
 h1 {
-  font-family: "Sawarabi Mincho";
+  font-family: "Yusei Magic";
   text-align: center;
   margin-bottom: 30px;
 }
 
 h2, h3, h4 {
-  font-family: "Sawarabi Mincho";
+  font-family: "Yusei Magic";
   margin-top: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #566270;
@@ -458,8 +459,6 @@ input[type="color"].large {
   margin-top: 0; /* 余分な上マージンを削除 */
 }
 
-
-
 /* ボタンの位置調整 - 23pxのマージンは削除 */
 .kotehan-form .form-row:last-child {
   margin-top: 0; /* マージン削除 */
@@ -474,15 +473,16 @@ input[type="color"].large {
   align-items: center;
   justify-content: center;
 }
-/* style.css に追加するスタイル */
-/* カスタムドロップダウンのスタイル */
-/* 省略... 既存のCSSはそのまま保持 */
 
 /* カスタムドロップダウンのスタイル */
 .custom-dropdown {
   position: relative;
   display: inline-block;
   width: 40%;
+}
+
+.custom-dropdown.res-dropdown{
+  width: 30%;
 }
 
 /* カスタムドロップダウンのセレクターの高さを他の入力要素と同じに */
@@ -610,7 +610,7 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
 .kotehan-form .custom-dropdown {
   width: 170px; /* 固定幅に設定 */
 }
-/
+
 /* コテハンドロップダウンのスタイル統一 */
 .kotehan-dropdown,
 .res-item .custom-dropdown {
@@ -635,8 +635,6 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
   align-items: center;
 }
 
-
-
 /* 2つ目以降のレスにもホバー色を確実に適用 */
 .res-item .custom-dropdown-option:hover,
 .res-item .kotehan-custom-dropdown-option:hover {
@@ -651,6 +649,7 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
   display: flex;
   align-items: center;
 }
+
 /* すべてのドロップダウンオプションに対して強制的にホバースタイルを適用 */
 .custom-dropdown-option:hover,
 .custom-dropdown-options .custom-dropdown-option:hover,
@@ -688,4 +687,271 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
 .custom-dropdown-option {
   padding: 10px 12px;
   font-size: 14px;
+}
+
+/* PC版用のジャンル・コテハンリスト */
+.genre-item, .kotehan-item {
+  background-color: #ECEEE6;
+  border-radius: 10px;
+  padding: 3px 0 0 10px;
+  margin: 5px 5px 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 45%;
+}
+
+/* === モバイル対応のスタイル === */
+/* === モバイル対応のスタイル === */
+@media (max-width: 767px) {
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  /* コテハン選択方式のタブボタンを横並びに */
+  .kotehan-toggle .tabs {
+    flex-direction: row;
+    width: 100%;
+    display: flex;
+    gap: 5px;
+  }
+
+  /* コテハン選択ボタンを幅いっぱいに */
+  .kotehan-toggle .toggle-button {
+    flex: 1;
+    margin: 0;
+    width: 50%;
+    justify-content: center;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  /* ジャンル選択とコテハン選択の共通スタイル */
+  .genre-container,
+  .kotehan-toggle {
+    width: 100%;
+  }
+
+  /* ジャンル選択のプルダウンをサイト幅いっぱいに */
+  .genre-container select,
+  #genre-select,
+  .select-box,
+  .genre-container .custom-dropdown,
+  .genre-container .custom-dropdown-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* コテハンのドロップダウン（プルダウン選択時）を幅いっぱいに */
+  .res-item .kotehan-dropdown,
+  .res-item select.kotehan-dropdown,
+  .res-item .custom-dropdown {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .res-item .custom-dropdown-select {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* カスタムドロップダウンのオプションリストも全幅に */
+  .custom-dropdown-options,
+  .custom-dropdown-options.show {
+    width: 100% !important;
+    left: 0;
+    right: 0;
+  }
+
+  .tab {
+    margin-right: 3px;
+    border-radius: 5px;
+    min-width: 120px;
+  }
+
+  /* ボタンの幅を調整 */
+  button {
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+
+  .copy-button {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 12px 20px;
+  }
+
+  .slider-handle {
+      width: 16px;
+      height: 18px;
+      background-color: #566270;
+      border-radius: 6px;
+      position: absolute;
+      top: -4px;
+      margin-left: -5px;
+      cursor: pointer;
+  }
+
+  .custom-number-input {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .res-content {
+    width: 100%;
+  }
+
+  /* 登録済みジャンル・コテハンリスト調整 */
+  .kotehan-item {
+    background-color: #ECEEE6;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    display: grid;
+    grid-template-columns: 1fr 4fr 4fr 1fr;
+    align-items: center;
+    width: 100%;
+    font-size: 16px;
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .genre-item {
+    background-color: #ECEEE6;
+    border-radius: 10px;
+    padding-left: 25px;
+    margin: 5px 0;
+    display: grid;
+    grid-template-columns: 8fr 2fr;
+    align-items: center;
+    width: 100%;
+    font-size: 16px;
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .kotehan-item span.kotehan-genre {
+    font-size: 14px;
+  }
+
+  .kotehan-color {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: #ccc;
+  }
+
+  .kotehan-item .delete-btn,
+  .genre-item .delete-btn {
+    font-size: 18px;
+    background: none;
+    color: #f5424e;
+    border: none;
+    cursor: pointer;
+    justify-self: end;
+  }
+
+  /* コテハン追加フォーム全体のレイアウト */
+  .kotehan-form {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* フォーム内の各行を幅いっぱいに */
+  .kotehan-form .form-row {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  /* 入力欄を幅いっぱいに */
+  .kotehan-form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* カラーピッカーの配置調整 */
+  .kotehan-form .color-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kotehan-form .color-row label {
+    width: 50%;
+  }
+
+  .kotehan-form .color-row input[type="color"] {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* カスタムドロップダウンを幅いっぱいに */
+  .kotehan-form .custom-dropdown,
+  .kotehan-form #kotehan-genre + .custom-dropdown {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+
+  .kotehan-form .custom-dropdown-select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 追加ボタンを幅いっぱいに */
+  .kotehan-form #add-kotehan-btn {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 0;
+    box-sizing: border-box;
+    margin-top: 5px;
+  }
+
+  /* ジャンルリストとコテハンリストの調整 */
+  #genre-list .genre-item,
+  #kotehan-list .kotehan-item {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 入力欄などの幅調整 */
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+  }
+
+  /* スライダー値の配置調整 */
+  .range-values {
+    gap: 10px;
+  }
+
+  /* セクションにも余白追加 */
+  .section {
+    padding: 0 5px;
+  }
+}
+
+/* さらに小さいモバイルサイズの調整 */
+@media (max-width: 480px) {
+  body {
+    padding: 15px 10px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .tab {
+    padding: 12px 5px;
+    font-size: 14px;
+  }
 }

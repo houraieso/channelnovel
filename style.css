@@ -700,7 +700,25 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
   justify-content: space-between;
   max-width: 45%;
 }
+/* コテハンドロップダウンのテキストを左寄せにする */
+.custom-dropdown-select {
+  justify-content: flex-start; /* 中央寄せから左寄せに変更 */
+  padding-left: 12px; /* 左側に少し余白を追加 */
+}
 
+/* カスタムドロップダウンのオプションも左寄せに統一 */
+.custom-dropdown-option,
+.kotehan-custom-dropdown-option {
+  justify-content: flex-start;
+  padding-left: 12px;
+  text-align: left;
+}
+
+/* ドロップダウン矢印のスペースを確保 */
+.custom-dropdown-select:after {
+  margin-left: auto; /* 左側の内容と右側の矢印の間にスペースを作る */
+  margin-right: 5px; /* 矢印の右マージンを少し追加 */
+}
 /* === モバイル対応のスタイル === */
 /* === モバイル対応のスタイル === */
 @media (max-width: 767px) {
@@ -939,7 +957,19 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
     padding: 0 5px;
   }
 }
+/* モバイル対応も調整 */
+@media (max-width: 767px) {
+  .custom-dropdown-select {
+    justify-content: flex-start;
+    padding-left: 12px;
+  }
 
+  .custom-dropdown-option,
+  .kotehan-custom-dropdown-option {
+    padding-left: 12px;
+    justify-content: flex-start;
+  }
+}
 /* さらに小さいモバイルサイズの調整 */
 @media (max-width: 480px) {
   body {

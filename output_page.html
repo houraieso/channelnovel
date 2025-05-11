@@ -8,7 +8,9 @@ const defaultSettings = {
     { name: '武蔵国審神者', color: '#FFD700', genre: '刀剣乱舞' },
     { name: '美濃国審神者', color: '#7F9E7F', genre: '刀剣乱舞' },
     { name: '名無しの厳格', color: '#FF0000', genre: 'ツイステ' },
+    { name: '名無しの不屈', color: '#f0eb67', genre: 'ツイステ' },
     { name: '名無しの慈悲', color: '#DDA0DD', genre: 'ツイステ' },
+    { name: '名無しの熟慮', color: '#852217', genre: 'ツイステ' },
     { name: '名無しの勤勉', color: '#1E90FF', genre: 'ツイステ' }
   ]
 };

@@ -319,7 +319,8 @@ textarea {
   border: 2px solid transparent;
 }
 .avatar.active {
-  border: 2px solid #566270;
+  box-shadow: 0 0 0 2px #fffff3, 0 0 0 4px #627080; /* 白い隙間と外側の青枠 */
+}
 }
 
 /* === 通知 === */

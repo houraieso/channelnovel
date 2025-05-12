@@ -176,7 +176,19 @@
       });
 
       // カスタムドロップダウンを適用
-      setTimeout(replaceSelectsWithCustomDropdowns, 100);
+      setTimeout(() => {
+        // 既存のカスタムドロップダウンを一度削除
+        const existingCustomDropdowns = document.querySelectorAll('.custom-dropdown');
+        existingCustomDropdowns.forEach(dropdown => dropdown.remove());
+
+        // セレクト要素を表示状態に戻す
+        document.querySelectorAll('select').forEach(select => {
+          select.style.display = '';
+        });
+
+        // 改めてカスタムドロップダウンを適用
+        replaceSelectsWithCustomDropdowns();
+      }, 100);
     }
 
     document.getElementById("add-genre-btn").addEventListener("click", () => {
@@ -195,19 +207,18 @@
     document.getElementById("add-kotehan-btn").addEventListener("click", () => {
       const name = document.getElementById("kotehan-name").value.trim();
       const color = document.getElementById("kotehan-color").value;
-      // カスタムドロップダウンから値を取得するように修正
-      let genre = document.getElementById("kotehan-genre").value;
 
-      // カスタムドロップダウンが適用されている場合、元のセレクト要素から値を取得
-      if (document.querySelector('.custom-dropdown[data-for="kotehan-genre"]')) {
-        genre = document.getElementById("kotehan-genre").value;
-      }
+      // 元のセレクト要素から直接値を取得
+      const genreSelect = document.getElementById("kotehan-genre");
+      const genre = genreSelect.options[genreSelect.selectedIndex].value;
 
       if (!name) return;
       const settings = getSettings();
       settings.kotehans.push({ name, color, genre });
       saveSettings(settings);
       document.getElementById("kotehan-name").value = "";
+
+      // コテハン追加後、フォームをリセットし、カスタムドロップダウンを再構築
       loadSettings();
     });
 
@@ -222,6 +233,21 @@
       settings.lineSpacing = parseInt(document.getElementById("line-spacing").value, 10);
       saveSettings(settings);
     });
+
+    // main.jsのcreateCustomDropdown関数をオーバーライド
+    const originalCreateCustomDropdown = window.createCustomDropdown;
+    window.createCustomDropdown = function(selectElement) {
+      if (!selectElement) return;
+
+      // まず、既に存在するカスタムドロップダウンを削除
+      const existingDropdown = selectElement.nextElementSibling;
+      if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+        existingDropdown.remove();
+      }
+
+      // 元の関数を呼び出す
+      return originalCreateCustomDropdown(selectElement);
+    };
 
     document.addEventListener("DOMContentLoaded", loadSettings);
   </script>

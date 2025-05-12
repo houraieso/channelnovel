@@ -11,6 +11,7 @@ const defaultSettings = {
     { name: '名無しの不屈', color: '#f0eb67', genre: 'ツイステ' },
     { name: '名無しの慈悲', color: '#DDA0DD', genre: 'ツイステ' },
     { name: '名無しの熟慮', color: '#852217', genre: 'ツイステ' },
+    { name: '名無しの奮励', color: '#641393', genre: 'ツイステ' },
     { name: '名無しの勤勉', color: '#1E90FF', genre: 'ツイステ' }
   ]
 };
@@ -59,6 +60,9 @@ function getInputState() {
 
 // ===== 📥 レス入力ページ用の関数群 =====
 
+// main.jsのgenerateResInputs関数を修正します
+// レス番号とコテハン設定を正しく連動させるための変更
+
 function generateResInputs() {
   const startValue = document.getElementById('start-value');
   const endValue = document.getElementById('end-value');
@@ -80,20 +84,21 @@ function generateResInputs() {
   const genreKotehans = allKotehans.filter(k => k.genre === currentGenre);
 
   const savedData = getResData();
-  let resSelections = inputState.resSelections || [];
 
-  // resSelectionsの長さが足りない場合は拡張
-  while (resSelections.length < (e - s + 1)) {
-    resSelections.push({});
-  }
+  // ここが重要: リセット済みのresSelectionsではなく、savedDataからレス番号ごとのコテハン情報を取得
+  // レス番号をキーにしたマッピングを作成
+  const kotehanByResNumber = {};
+  savedData.forEach(res => {
+    if (!res.isDefault && res.name) {
+      kotehanByResNumber[res.number] = res.name;
+    }
+  });
 
   resContainer.innerHTML = "";
 
   for (let i = s; i <= e; i++) {
-    const itemIndex = i - s;
     const resNumber = i;
     const savedRes = savedData.find(res => res.number === resNumber);
-    const savedSelection = resSelections[itemIndex] || {};
 
     const item = document.createElement("div");
     item.className = "res-item";
@@ -108,12 +113,12 @@ function generateResInputs() {
     const nameSpan = document.createElement("span");
     nameSpan.className = "res-name";
 
-    // 名前表示設定（isDefaultフラグ考慮）
+    // 名前表示設定（修正部分: レス番号で対応するコテハン名を取得）
+    let displayName = defaultName;
     if (savedRes) {
-      nameSpan.textContent = savedRes.isDefault ? defaultName : (savedRes.name || defaultName);
-    } else {
-      nameSpan.textContent = defaultName;
+      displayName = savedRes.isDefault ? defaultName : (savedRes.name || defaultName);
     }
+    nameSpan.textContent = displayName;
 
     header.appendChild(num);
     header.appendChild(nameSpan);
@@ -135,9 +140,8 @@ function generateResInputs() {
 
       if (dropdown) dropdown.value = "";
 
-      // 選択状態更新
-      resSelections[itemIndex] = { kotehanName: "" };
-      saveInputState({ resSelections });
+      // 選択状態更新 - レス番号をキーにして保存
+      kotehanByResNumber[resNumber] = "";
       updateResData();
     };
     avatarBox.appendChild(defaultIcon);
@@ -155,9 +159,8 @@ function generateResInputs() {
 
         if (dropdown) dropdown.value = k.name;
 
-        // 選択状態更新
-        resSelections[itemIndex] = { kotehanName: k.name };
-        saveInputState({ resSelections });
+        // 選択状態更新 - レス番号をキーにして保存
+        kotehanByResNumber[resNumber] = k.name;
         updateResData();
       };
       avatarBox.appendChild(avatar);
@@ -190,9 +193,8 @@ function generateResInputs() {
         a.classList.toggle("active", a.title === selected || (selected === "" && a.title === defaultName));
       });
 
-      // 選択状態更新
-      resSelections[itemIndex] = { kotehanName: selected };
-      saveInputState({ resSelections });
+      // 選択状態更新 - レス番号をキーにして保存
+      kotehanByResNumber[resNumber] = selected;
       updateResData();
     };
 
@@ -221,16 +223,12 @@ function generateResInputs() {
     item.appendChild(textarea);
     resContainer.appendChild(item);
 
-    // コテハン選択状態の復元
-    let kotehanToSelect = "";
+    // コテハン選択状態の復元 (修正部分: レス番号に基づいてコテハンを設定)
+    let kotehanToSelect = kotehanByResNumber[resNumber] || "";
 
     // まずレス保存データを参照：デフォルト名ではない場合のみ考慮
     if (savedRes && !savedRes.isDefault && savedRes.name) {
       kotehanToSelect = savedRes.name;
-    }
-    // 次に選択状態を参照
-    else if (savedSelection.kotehanName) {
-      kotehanToSelect = savedSelection.kotehanName;
     }
 
     if (kotehanToSelect) {
@@ -261,7 +259,7 @@ function generateResInputs() {
   }
 }
 
-// レスデータ更新関数
+// レスデータ更新関数 - 修正不要ですが含めておきます
 function updateResData() {
   const settings = getSettings();
   const defaultName = settings.defaultName;

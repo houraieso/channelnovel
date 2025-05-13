@@ -106,6 +106,7 @@ textarea {
 
 .res-content{
   width: 97%;
+  padding: 9px;
 }
 
 input[type="number"] {
@@ -826,6 +827,8 @@ body .custom-dropdown-options .kotehan-custom-dropdown-option:hover {
 
   .res-content {
     width: 100%;
+    font-size: 17px;
+    padding: 6px;
   }
 
   /* 登録済みジャンル・コテハンリスト調整 */

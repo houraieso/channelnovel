@@ -8,7 +8,31 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@300;400&family=Yusei+Magic&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@300;400&family=Yusei+Magic&display=swap" rel="stylesheet">
+  <style>
+    /* 通知のスタイル */
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 1000;
+      font-family: 'M PLUS 1p', sans-serif;
+      font-weight: 400;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
   <h1>ちゃんねる風小説執筆支援ツール</h1>
@@ -28,6 +52,9 @@
   <div class="output-container" id="output-text">
     <!-- JSで生成 -->
   </div>
+
+  <!-- 通知要素 -->
+  <div class="notification" id="copy-notification">コピーしました！</div>
 
   <script src="main.js"></script>
   <script>
@@ -85,6 +112,17 @@
     }
     // どちらでもない場合はデフォルト値を返す
     return [0, 0, 0];
+  }
+
+  // 通知を表示する関数
+  function showNotification() {
+    const notification = document.getElementById("copy-notification");
+    notification.classList.add("show");
+
+    // 3秒後に通知を非表示にする
+    setTimeout(() => {
+      notification.classList.remove("show");
+    }, 3000);
   }
   </script>
 </body>

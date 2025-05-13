@@ -23,6 +23,25 @@
     .res-name {
       margin-left: 8px;
     }
+    /* スライダーのモバイル対応のためのスタイル調整 */
+    .slider-handle {
+      touch-action: none; /* モバイルでのスクロール防止 */
+      cursor: grab;
+      -webkit-tap-highlight-color: transparent; /* タップ時のハイライト防止 */
+    }
+    .slider-handle:active {
+      cursor: grabbing;
+    }
+    /* モバイル用の拡大タッチエリア */
+    .slider-handle::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      z-index: -1;
+    }
   </style>
 </head>
 <body>
@@ -87,7 +106,6 @@
   <!-- レス生成 -->
   <div class="res-container" id="res-container"></div>
 
-
   <!-- 先にmain.jsをロード -->
   <script src="main.js"></script>
   <script>
@@ -114,7 +132,7 @@
     generateResInputs();
   }
 
-  // レンジスライダーの設定
+  // レンジスライダーの設定 - モバイル対応改善版
   function setupRangeSlider() {
     const startHandle = document.getElementById('start-handle');
     const endHandle = document.getElementById('end-handle');
@@ -134,6 +152,7 @@
 
     let isDragging = false;
     let current = null;
+    let touchIdentifier = null; // タッチ識別用
 
     function positionToValue(percent) {
       return Math.round(1 + percent * 999);
@@ -171,11 +190,41 @@
       generateResInputs();
     }
 
-    function drag(e) {
+    // マウス/タッチ共通の処理 - 位置計算を改善
+    function getPositionPercent(e, rect) {
+      let clientX;
+
+      // タッチイベントかマウスイベントかを判断
+      if (e.touches && e.touches.length) {
+        // タッチイベントの場合は、追跡中の特定のタッチを見つける
+        if (touchIdentifier !== null) {
+          for (let i = 0; i < e.touches.length; i++) {
+            if (e.touches[i].identifier === touchIdentifier) {
+              clientX = e.touches[i].clientX;
+              break;
+            }
+          }
+          // 追跡中のタッチが見つからない場合は最初のタッチを使用
+          if (clientX === undefined) {
+            clientX = e.touches[0].clientX;
+          }
+        } else {
+          clientX = e.touches[0].clientX;
+        }
+      } else {
+        clientX = e.clientX;
+      }
+
+      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    }
+
+    // マウス移動処理
+    function handleMouseMove(e) {
       if (!isDragging) return;
+      e.preventDefault(); // スクロール防止
 
       const rect = sliderTrack.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const percent = getPositionPercent(e, rect);
       const value = Math.max(1, Math.min(1000, positionToValue(percent)));
 
       if (current === "start" && value < parseInt(endValue.value)) {
@@ -187,11 +236,32 @@
       updateSliderPositions();
     }
 
-    function endDrag() {
+    // タッチ移動処理 - タッチ専用に最適化
+    function handleTouchMove(e) {
+      if (!isDragging) return;
+      e.preventDefault(); // スクロール防止
+
+      const rect = sliderTrack.getBoundingClientRect();
+      const percent = getPositionPercent(e, rect);
+      const value = Math.max(1, Math.min(1000, positionToValue(percent)));
+
+      if (current === "start" && value < parseInt(endValue.value)) {
+        startValue.value = value;
+      } else if (current === "end" && value > parseInt(startValue.value)) {
+        endValue.value = value;
+      }
+
+      updateSliderPositions();
+    }
+
+    // マウスドラッグ終了
+    function handleMouseEnd(e) {
       if (isDragging) {
         isDragging = false;
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('mouseup', endDrag);
+
+        // イベントリスナーの削除
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseEnd);
 
         // ドラッグ終了時にレス入力欄を更新し状態を保存
         saveInputState({
@@ -202,20 +272,84 @@
       }
     }
 
-    startHandle.addEventListener('mousedown', (e) => {
+    // タッチ終了
+    function handleTouchEnd(e) {
+      if (isDragging) {
+        // タッチポイントが残っているか確認
+        let touchFound = false;
+        if (e.touches) {
+          for (let i = 0; i < e.touches.length; i++) {
+            if (e.touches[i].identifier === touchIdentifier) {
+              touchFound = true;
+              break;
+            }
+          }
+        }
+
+        // すべてのタッチが終了した場合のみドラッグ終了
+        if (!touchFound) {
+          isDragging = false;
+          touchIdentifier = null;
+
+          // イベントリスナーの削除
+          document.removeEventListener('touchmove', handleTouchMove);
+          document.removeEventListener('touchend', handleTouchEnd);
+          document.removeEventListener('touchcancel', handleTouchEnd);
+
+          // ドラッグ終了時にレス入力欄を更新し状態を保存
+          saveInputState({
+            startValue: parseInt(startValue.value),
+            endValue: parseInt(endValue.value)
+          });
+          generateResInputs();
+        }
+      }
+    }
+
+    // マウス操作開始
+    function handleMouseStart(e, handleType) {
       e.preventDefault();
       isDragging = true;
-      current = "start";
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', endDrag);
+      current = handleType;
+
+      // マウスイベントリスナーの追加
+      document.addEventListener('mousemove', handleMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleMouseEnd);
+    }
+
+    // タッチ操作開始
+    function handleTouchStart(e, handleType) {
+      e.preventDefault();
+      isDragging = true;
+      current = handleType;
+
+      // 最初のタッチポイントの識別子を保存
+      if (e.touches && e.touches.length > 0) {
+        touchIdentifier = e.touches[0].identifier;
+      }
+
+      // タッチイベントリスナーの追加
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('touchcancel', handleTouchEnd);
+    }
+
+    // マウスイベント
+    startHandle.addEventListener('mousedown', (e) => {
+      handleMouseStart(e, "start");
     });
 
     endHandle.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      isDragging = true;
-      current = "end";
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', endDrag);
+      handleMouseStart(e, "end");
+    });
+
+    // タッチイベント
+    startHandle.addEventListener('touchstart', (e) => {
+      handleTouchStart(e, "start");
+    });
+
+    endHandle.addEventListener('touchstart', (e) => {
+      handleTouchStart(e, "end");
     });
 
     // inputイベントとchangeイベントの両方をリッスン
@@ -282,7 +416,7 @@
     });
   }
 
-  // 数値入力の上下矢印設定
+  // 数値入力の上下矢印設定 - モバイル対応改善版
   function setupNumberInputArrows(input, callback) {
     const container = input.closest('.custom-number-input');
     if (!container) return;
@@ -292,46 +426,71 @@
 
     let intervalId = null;
     let pressTimer = null;
+    let isTouching = false;
 
-    // 上矢印クリック＆長押し
-    upArrow.addEventListener('mousedown', (e) => {
-      e.preventDefault();
+    // 共通の処理 - 上矢印、下矢印どちらにも適用
+    function setupArrowEvents(arrow, direction) {
+      // マウスイベント
+      arrow.addEventListener('mousedown', (e) => {
+        e.preventDefault();
 
-      // クリック時に一度増加
-      input.stepUp();
-
-      // 長押し検出タイマー
-      pressTimer = setTimeout(() => {
-        // 長押し時の連続増加
-        intervalId = setInterval(() => {
+        // クリック時に一度増減
+        if (direction === 'up') {
           input.stepUp();
-        }, 150);
-      }, 300);
-
-      document.addEventListener('mouseup', stopIncrement);
-      document.addEventListener('mouseleave', stopIncrement);
-    });
-
-    // 下矢印クリック＆長押し
-    downArrow.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-
-      // クリック時に一度減少
-      input.stepDown();
-
-      // 長押し検出タイマー
-      pressTimer = setTimeout(() => {
-        // 長押し時の連続減少
-        intervalId = setInterval(() => {
+        } else {
           input.stepDown();
-        }, 150);
-      }, 300);
+        }
 
-      document.addEventListener('mouseup', stopIncrement);
-      document.addEventListener('mouseleave', stopIncrement);
-    });
+        // 長押し検出タイマー
+        pressTimer = setTimeout(() => {
+          // 長押し時の連続増減
+          intervalId = setInterval(() => {
+            if (direction === 'up') {
+              input.stepUp();
+            } else {
+              input.stepDown();
+            }
+          }, 150);
+        }, 300);
 
-    // 増減停止と値確定
+        document.addEventListener('mouseup', stopIncrement);
+        document.addEventListener('mouseleave', stopIncrement);
+      });
+
+      // タッチイベント - モバイル対応改善
+      arrow.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isTouching = true;
+
+        // タップ時に一度増減
+        if (direction === 'up') {
+          input.stepUp();
+        } else {
+          input.stepDown();
+        }
+
+        // 長押し検出タイマー
+        pressTimer = setTimeout(() => {
+          // 長押し時の連続増減
+          intervalId = setInterval(() => {
+            if (direction === 'up') {
+              input.stepUp();
+            } else {
+              input.stepDown();
+            }
+          }, 150);
+        }, 300);
+
+        document.addEventListener('touchend', stopTouchIncrement);
+        document.addEventListener('touchcancel', stopTouchIncrement);
+      });
+    }
+
+    // 上矢印と下矢印のイベント設定
+    setupArrowEvents(upArrow, 'up');
+    setupArrowEvents(downArrow, 'down');
+
+    // マウス用の増減停止と値確定
     function stopIncrement() {
       clearTimeout(pressTimer);
       clearInterval(intervalId);
@@ -341,6 +500,21 @@
 
       document.removeEventListener('mouseup', stopIncrement);
       document.removeEventListener('mouseleave', stopIncrement);
+    }
+
+    // タッチ用の増減停止と値確定
+    function stopTouchIncrement() {
+      if (isTouching) {
+        clearTimeout(pressTimer);
+        clearInterval(intervalId);
+        isTouching = false;
+
+        // コールバック実行（スライダー更新とレス生成）
+        if (callback) callback();
+
+        document.removeEventListener('touchend', stopTouchIncrement);
+        document.removeEventListener('touchcancel', stopTouchIncrement);
+      }
     }
   }
   </script>
